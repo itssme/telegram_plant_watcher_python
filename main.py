@@ -35,13 +35,17 @@ def add_chat_id(update, context):
     chat_id = update.message.chat_id
     db = sqlite3.connect("chats.db")
     cur = db.cursor()
-    cur.execute("insert into chats values(?);", [chat_id])
-    print(cur.fetchall())
+    try:
+        cur.execute("insert into chats values(?);", [chat_id])
+        print(cur.fetchall())
+    except Exception as e:
+        print(e)
     cur.close()
     db.commit()
     db.close()
     print("inserted")
     update_ids()
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Saved your chat id")
 
 
 def update_ids():
