@@ -13,6 +13,21 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 chat_ids = []
+vs = None
+
+
+def snapshot(update, context):
+    global vs
+
+    if vs is not None:
+        try:
+            frame = get_frame(vs)
+            filename = "/tmp/" + str(time.time()) + ".png"
+            return_value = cv2.imwrite(filename, frame)
+            print(return_value)
+            context.bot.send_photo(chat_id=update.effective_chat.id, photo=open(filename, 'rb'))
+        except Exception as e:
+            context.bot.send_message(chat_id=update.effective_chat.id, text="There was an error: " + str(e))
 
 
 def get_frame(vs):
@@ -28,7 +43,9 @@ def help(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Usage:\n"
                                                                     "/help - prints this help\n"
                                                                     "/register - saves your chat id for getting "
-                                                                    "messages")
+                                                                    "messages\n"
+                                                                    "/take_picture - takes a picture of the plant and "
+                                                                    "sends it directly in telegram")
 
 
 def add_chat_id(update, context):
@@ -66,6 +83,7 @@ def error(update, context):
 
 def main():
     global chat_ids
+    global vs
 
     db = None
     if not os.path.isfile("chats.db"):
@@ -102,6 +120,10 @@ def main():
                                   pass_job_queue=True,
                                   pass_chat_data=True))
     dp.add_handler(CommandHandler("help", help,
+                                  pass_args=True,
+                                  pass_job_queue=True,
+                                  pass_chat_data=True))
+    dp.add_handler(CommandHandler("take_picture", snapshot,
                                   pass_args=True,
                                   pass_job_queue=True,
                                   pass_chat_data=True))
