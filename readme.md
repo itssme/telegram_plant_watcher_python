@@ -11,7 +11,7 @@ git clone https://github.com/itssme/telegram_plant_watcher_python.git
 sudo python3 setup.py install
 ```
 
-You will be asked for a bot bot token which will be stored in the systemd file for the service.
+You will be asked for a bot token which will be stored in the systemd file for the service.
 
 Then you should be able to enable and then start the service:
 ```bash
@@ -48,6 +48,6 @@ Then the bot should send you an image of your plant every day at 12am.
 
 ![picture of the bot sending an image](https://i.imgur.com/eX0jQQv.png "picture of the bot sending an image")
 
-You can also see all command with ```/help```
+You can also see all commands with ```/help```
 
 ![/help command demonstrated](https://i.imgur.com/ZIbJQ33.png "/help command demonstrated")
