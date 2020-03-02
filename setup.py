@@ -29,6 +29,17 @@ if rc != 0:
 
 print(Colors.OKGREEN + "[!] installed python3-systemd successfully" + Colors.ENDC)
 
+print(Colors.OKGREEN + "[!] installing python-telegram-bot via pip3" + Colors.ENDC)
+child = subprocess.Popen(["pip3", "install", "python-telegram-bot"])
+streamdata = child.communicate()[0]
+rc = child.returncode
+
+if rc != 0:
+    print(Colors.FAIL + "[!] failed to run pip3 install python-telegram-bot")
+    quit(1)
+
+print(Colors.OKGREEN + "[!] installed python-telegram-bot successfully" + Colors.ENDC)
+
 print(Colors.OKGREEN + "[!] creating working directory in /home/plant_watcher" + Colors.ENDC)
 child = subprocess.Popen(["mkdir", "/home/plant_watcher", "--parent"])
 streamdata = child.communicate()[0]
