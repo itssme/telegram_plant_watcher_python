@@ -135,6 +135,12 @@ def main():
     try:
         vs = cv2.VideoCapture(0)
 
+        try:
+            vs.set(cv2.CAP_PROP_FRAME_WIDTH, int(os.environ["width"]))
+            vs.set(cv2.CAP_PROP_FRAME_HEIGHT, int(os.environ["height"]))
+        except Exception as e:
+            print("[!] could not change default resolution -> " + str(e))
+
         while True:
             current_time = datetime.datetime.now()
             next_date = datetime.datetime(current_time.year, current_time.month, current_time.day, hour=12, minute=0,

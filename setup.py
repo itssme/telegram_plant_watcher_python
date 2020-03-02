@@ -47,8 +47,20 @@ if rc != 0:
     quit(1)
 
 print(Colors.OKBLUE + "[!] Type in your bot token for telegram" + Colors.ENDC)
+bot_token = input("?: ")
+
+print(Colors.OKGREEN + "[!] Do you want to set a custom resolution? Default of opencv is (640x480), if you want to "
+                       "set it to the highest possible, set a value like 4000x4000." + Colors.ENDC)
+
+overwrite_res = True if input("(y/n): ").lower() == "y" else False
 
 service_file_writer = open(os.path.dirname(os.path.abspath(__file__)) + "/plant_watcher.service", "w")
+
+width = ""
+height = ""
+if overwrite_res:
+    width = input("Width: ")
+    height = input("Height: ")
 
 service_file = """[Unit]
 Description=Monitoring service
@@ -56,9 +68,12 @@ Description=Monitoring service
 ExecStart=/usr/bin/python3 """ + os.path.dirname(os.path.abspath(__file__)) + """/main.py
 Environment="PYTHONUNBUFFERED=1"
 Environment="take_picture=12h00m"
-Environment="bot_token=""" + input("?: ") + """"
+Environment="bot_token=""" + bot_token + """"
 Environment="working_dir=/home/plant_watcher"
 Environment="debug=False"
+Environment="overwrite_resolution=""" + str(overwrite_res) + """"
+Environment="width=""" + width + """"
+Environment="height=""" + height + """"
 Restart=on-failure
 Type=notify
 [Install]
@@ -101,7 +116,7 @@ else:
 
 setuptools.setup(
     name="plant_watcher",
-    version="0.0.1",
+    version="0.0.2",
     author="itssme",
     author_email="itssme3000@gmail.com",
     description="Python bot that sends images of my plant to me in telegram",
@@ -115,4 +130,5 @@ setuptools.setup(
         "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
     ],
+    license="BSD"
 )
