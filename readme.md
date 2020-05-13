@@ -31,7 +31,7 @@ and run the installation again.
 
 If you want to start the service type:
 ```bash
-sudo service plant_watcher stop
+sudo service plant_watcher start
 ```
 
 If you want to stop the service type:
