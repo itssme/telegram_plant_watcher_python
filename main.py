@@ -33,13 +33,14 @@ def snapshot(update, context):
 def get_frame(vs):
     start_time = time.time()
     frame = None
-    while time.time() - start_time <= 4 or (frame is None and time.time() - start_time <= 10):
+    while time.time() - start_time <= 5:
         try:
             frame = vs.read()[1]
         except Exception as e:
             logging.error("could not capture image -> {}".format(e))
             time.sleep(1)
 
+    logging.info("done getting frame")
     return frame
 
 
@@ -138,10 +139,12 @@ def main():
 
     try:
         vs = cv2.VideoCapture(0)
+        logging.info("opened video device")
 
         try:
             vs.set(cv2.CAP_PROP_FRAME_WIDTH, int(os.environ["width"]))
             vs.set(cv2.CAP_PROP_FRAME_HEIGHT, int(os.environ["height"]))
+            logging.info("set resulution to width: {} and height: {}",format(os.environ["width"], os.environ["height"]))
         except Exception as e:
             print("[!] could not change default resolution -> " + str(e))
 
@@ -161,8 +164,8 @@ def main():
             frame = get_frame(vs)
 
             if frame is None:
-                send_all("Failed to capture image, view log for details")
                 logging.error("Failed to capture image")
+                send_all("Failed to capture image, view log for details")
                 time.sleep(60)
                 continue
 
