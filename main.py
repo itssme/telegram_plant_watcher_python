@@ -33,8 +33,12 @@ def snapshot(update, context):
 def get_frame(vs):
     start_time = time.time()
     frame = None
-    while time.time() - start_time <= 4 or frame is None:
-        frame = vs.read()[1]
+    while time.time() - start_time <= 4 or (frame is None and time.time() - start_time <= 10):
+        try:
+            frame = vs.read()[1]
+        except Exception as e:
+            logging.error("could not capture image -> {}".format(e))
+            time.sleep(1)
 
     return frame
 
@@ -110,7 +114,7 @@ def main():
         for chat_id in chat_ids:
             bot.send_photo(chat_id=chat_id, photo=open(filename, 'rb'))
 
-    send_all("I am online again and stalking your plant (﻿ ͡° ͜ʖ ͡°)")
+    # send_all("I am online again and stalking your plant (﻿ ͡° ͜ʖ ͡°)")
 
     updater = Updater(os.environ["bot_token"], use_context=True)
 
@@ -149,6 +153,13 @@ def main():
 
             time.sleep(due)
             frame = get_frame(vs)
+
+            if frame is None:
+                send_all("Failed to capture image, view log for details")
+                logging.error("Failed to capture image")
+                time.sleep(60)
+                continue
+
             filename = os.environ["working_dir"] + "/" + str(datetime.datetime.now()).replace(".", "_").replace(" ",
                                                                                                           "_") + ".jpg"
             return_value = cv2.imwrite(filename, frame)
