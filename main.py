@@ -24,7 +24,7 @@ def snapshot(update, context):
             frame = get_frame(vs)
             filename = "/tmp/" + str(time.time()) + ".png"
             return_value = cv2.imwrite(filename, frame)
-            print(return_value)
+            logging.info("saving snapshop -> {}".format(return_value))
             context.bot.send_photo(chat_id=update.effective_chat.id, photo=open(filename, 'rb'))
         except Exception as e:
             context.bot.send_message(chat_id=update.effective_chat.id, text="There was an error: " + str(e))
@@ -56,16 +56,16 @@ def help(update, context):
 def add_chat_id(update, context):
     chat_id = update.message.chat_id
     db = sqlite3.connect("chats.db")
-    cur = db.cursor()
     try:
+        cur = db.cursor()
         cur.execute("insert into chats values(?);", [chat_id])
-        print(cur.fetchall())
+        cur.close()
+        db.commit()
+        logging.info("inserted new chat id -> {}".format(chat_id))
     except Exception as e:
-        print(e)
-    cur.close()
-    db.commit()
-    db.close()
-    print("inserted")
+        logging.error("error while inserting new chat id -> {}".format(str(e)))
+    finally:
+        db.close()
     update_ids()
     context.bot.send_message(chat_id=update.effective_chat.id, text="Saved your chat id")
 
@@ -77,8 +77,7 @@ def update_ids():
     cur.execute("select * from chats;")
     chat_ids = [chat_id[0] for chat_id in cur.fetchall()]
     cur.close()
-    print(chat_ids)
-    print("[!] updated ids")
+    logging.info("updated ids -> {}".format(str(chat_ids)))
 
 
 def error(update, context):
@@ -103,7 +102,7 @@ def main():
     cur.execute("select * from chats;")
     chat_ids = [chat_id[0] for chat_id in cur.fetchall()]
     cur.close()
-    print(chat_ids)
+    logging.info("got chat ids from db -> {}".format(str(chat_ids)))
 
     bot = telegram.Bot(token=os.environ["bot_token"])
 
@@ -144,9 +143,9 @@ def main():
         try:
             vs.set(cv2.CAP_PROP_FRAME_WIDTH, int(os.environ["width"]))
             vs.set(cv2.CAP_PROP_FRAME_HEIGHT, int(os.environ["height"]))
-            logging.info("set resulution to width: {} and height: {}",format(os.environ["width"], os.environ["height"]))
+            logging.info("set resolution to width: {} and height: {}".format(os.environ["width"], os.environ["height"]))
         except Exception as e:
-            print("[!] could not change default resolution -> " + str(e))
+            logging.warning("could not change default resolution -> {}".format(str(e)))
 
         while True:
             current_time = datetime.datetime.now()
@@ -154,7 +153,7 @@ def main():
                                           second=0, microsecond=0)
             wait_time = next_date - current_time
             due = wait_time.seconds
-            print("Waiting for " + str(due) + " seconds")
+            logging.info("Waiting for {} seconds".format(due))
 
             if due < 0:
                 send_all("There was an error in getting the next time")
@@ -178,8 +177,7 @@ def main():
                 send_all("Image saved " + str(filename))
             else:
                 send_all("Failed to save image :( " + str(filename))
-            print(return_value)
-            print("saved frame")
+            logging.info("saved frame -> {}".format(return_value))
 
             # save a second image on the same day
             time.sleep(60*60)
@@ -190,13 +188,12 @@ def main():
                     replace(" ", "_") + ".jpg"
 
                 return_value = cv2.imwrite(filename, frame)
-                print(return_value)
-                print("saved frame")
+                logging.info("saved frame -> {}".format(return_value))
             except Exception as e:
-                print(e)
-                print("Unable to save second image :/")
+                logging.error("Unable to save second image -> {}".format(str(e)))
 
     except Exception as e:
+        logging.info("Unknown error {}".format(str(e)))
         send_all("Unknown error " + str(e))
 
 
